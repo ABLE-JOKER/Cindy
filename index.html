@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#f4c2c2">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>For Cindy</title>
     <style>
         /* Global Styles */
@@ -53,7 +57,7 @@
             color: white;
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
+            transition: all 0.3s ease; /* Smooth growth animation */
         }
         
         button:active {
@@ -149,6 +153,7 @@
             font-size: 18px;
             font-weight: bold;
             height: 50px;
+            color: #333;
         }
 
         /* --- Section 4: The Question --- */
@@ -157,12 +162,15 @@
             font-size: 32px;
             margin-bottom: 40px;
             z-index: 10;
+            transition: all 0.3s ease;
         }
         .btn-container {
             display: flex;
             flex-direction: column;
+            align-items: center;
             gap: 15px;
             z-index: 10;
+            width: 100%;
         }
         #yes-btn {
             background-color: #4CAF50;
@@ -219,7 +227,7 @@
         <div class="card-container" onclick="flipCard(this)">
             <div class="card">
                 <div class="card-front">🎁</div>
-                <div class="card-back">Your smile feels like the sun after a rain.</div>
+                <div class="card-back">Your smile feels like the sunshine after a rainfall.</div>
             </div>
         </div>
 
@@ -235,7 +243,7 @@
     </div>
 
     <div id="section4" class="section">
-        <h1>Will you be my girlfriend?</h1>
+        <h1 id="main-question">Will you be my girlfriend?</h1>
         <div class="btn-container">
             <button id="yes-btn" onclick="sheSaidYes()">YES!</button>
             <button id="no-btn" onclick="handleNoClick()">No</button>
@@ -284,7 +292,7 @@
             showSection('section3');
             const circle = document.getElementById('progress-circle');
             const textElement = document.getElementById('loading-text');
-            const circumference = 314; // 2 * pi * 50
+            const circumference = 314; 
             
             const stages = [
                 { pct: 0, text: "Gathering courage..." },
@@ -294,14 +302,12 @@
                 { pct: 100, text: "Okay, here goes nothing." }
             ];
 
-            // Run through stages with 3-second intervals
             stages.forEach((stage, index) => {
                 setTimeout(() => {
                     textElement.innerText = stage.text;
                     const offset = circumference - (stage.pct / 100) * circumference;
                     circle.style.strokeDashoffset = offset;
                     
-                    // If it's the last stage, wait a bit and go to Section 4
                     if (index === stages.length - 1) {
                         setTimeout(goToSection4, 3000);
                     }
@@ -311,13 +317,17 @@
 
         // --- Section 4 Logic ---
         function goToSection4() {
-            // Change background to Navy Blue
             document.body.style.backgroundColor = "#000080";
             showSection('section4');
             createFloatingHearts();
         }
 
+        // Growth variables for the YES button
+        let yesFontSize = 24;
+        let yesPaddingV = 15;
+        let yesPaddingH = 40;
         let noClickCount = 0;
+        
         const noTexts = [
             "Are you sure? 🥺",
             "Think about it!",
@@ -327,52 +337,61 @@
 
         function handleNoClick() {
             const noBtn = document.getElementById('no-btn');
+            const yesBtn = document.getElementById('yes-btn');
+            const mainQuestion = document.getElementById('main-question');
+
+            // Change the main text to the pleadings
             if (noClickCount < noTexts.length) {
-                noBtn.innerText = noTexts[noClickCount];
+                mainQuestion.innerText = noTexts[noClickCount];
                 noClickCount++;
             } else {
-                // On the 5th click, hide the button
+                // On the 5th click, hide the NO button completely
                 noBtn.style.display = 'none';
+                mainQuestion.innerText = "Please? 🥺";
             }
+
+            // Make the YES button ridiculously bigger
+            yesFontSize += 35; // Increases font size massively
+            yesPaddingV += 15; // Increases vertical padding
+            yesPaddingH += 30; // Increases horizontal padding
+            
+            yesBtn.style.fontSize = yesFontSize + 'px';
+            yesBtn.style.padding = yesPaddingV + 'px ' + yesPaddingH + 'px';
         }
 
         function sheSaidYes() {
-    const section = document.getElementById('section4');
-    
-    // Inject CSS for the celebration animations dynamically
-    const style = document.createElement('style');
-    style.innerHTML = `
-        @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 80% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
-        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
-    `;
-    document.head.appendChild(style);
+            const section = document.getElementById('section4');
+            
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 80% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+                @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+                @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+            `;
+            document.head.appendChild(style);
 
-    // Update the screen content
-    section.innerHTML = `
-        <h1 style="font-size: 36px; animation: popIn 0.6s ease-out; margin-bottom: 10px;">I'm the luckiest guy! ❤️</h1>
-        <p style="color: white; font-size: 18px; animation: popIn 0.8s ease-out;">Get ready for your donut and beans! 🍩🫘</p>
-        <div style="font-size: 70px; margin-top: 30px; animation: bounce 2s infinite;">🥳</div>
-    `;
+            section.innerHTML = `
+                <h1 style="font-size: 36px; animation: popIn 0.6s ease-out; margin-bottom: 10px;">I'm the luckiest guy! ❤️</h1>
+                <p style="color: white; font-size: 18px; animation: popIn 0.8s ease-out;">Get ready for your donut and beans! 🍩🫘</p>
+                <div style="font-size: 70px; margin-top: 30px; animation: bounce 2s infinite;">🥳</div>
+            `;
 
-    // Create the continuous confetti effect
-    setInterval(() => {
-        const confetti = document.createElement('div');
-        const emojis = ['🎉', '💖', '✨', '🍩', '🥺'];
-        confetti.innerText = emojis[Math.floor(Math.random() * emojis.length)];
-        confetti.style.position = 'absolute';
-        confetti.style.left = Math.random() * 100 + 'vw';
-        confetti.style.top = '-10vh';
-        confetti.style.fontSize = (Math.random() * 20 + 15) + 'px';
-        confetti.style.animation = "fall " + (Math.random() * 3 + 2) + "s linear";
-        confetti.style.zIndex = '100';
-        document.body.appendChild(confetti);
-        
-        // Remove confetti after it falls to prevent the mobile browser from lagging
-        setTimeout(() => confetti.remove(), 5000);
-    }, 150);
-}
-
+            setInterval(() => {
+                const confetti = document.createElement('div');
+                const emojis = ['🎉', '💖', '✨', '🍩', '🥺'];
+                confetti.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                confetti.style.position = 'absolute';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = '-10vh';
+                confetti.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                // Fixed animation concatenation syntax below
+                confetti.style.animation = "fall " + (Math.random() * 3 + 2) + "s linear";
+                confetti.style.zIndex = '100';
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => confetti.remove(), 5000);
+            }, 150);
+        }
 
         function createFloatingHearts() {
             const section = document.getElementById('section4');
@@ -389,3 +408,4 @@
     </script>
 </body>
 </html>
+
