@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>For Cindy</title>
+    <style>
+        /* Global Styles */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            overflow: hidden; /* Prevents scrolling */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4c2c2; /* Baby pink default */
+            transition: background-color 1s ease;
+        }
+
+        .section {
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 90%;
+            max-width: 400px;
+            animation: fadeIn 1s;
+        }
+
+        .active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1, h2, p {
+            color: #333;
+        }
+
+        button {
+            padding: 12px 24px;
+            margin: 10px;
+            font-size: 18px;
+            border: none;
+            border-radius: 25px;
+            background-color: #ff6b81;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        button:active {
+            transform: scale(0.95);
+        }
+
+        /* --- Section 1: Passcode --- */
+        input[type="text"] {
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            width: 80%;
+            text-align: center;
+        }
+        #error-msg {
+            color: red;
+            font-weight: bold;
+            height: 20px;
+            margin-top: 10px;
+        }
+
+        /* --- Section 2: Flashcards --- */
+        .card-container {
+            width: 100%;
+            height: 120px;
+            margin: 10px 0;
+            perspective: 1000px; /* Gives the 3D flip effect */
+        }
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 15px;
+            box-sizing: border-box;
+        }
+        .card-front {
+            background-color: white;
+            font-size: 50px; /* Big icons */
+        }
+        .card-back {
+            background-color: #ff6b81;
+            color: white;
+            transform: rotateY(180deg);
+            font-size: 16px;
+            font-weight: 500;
+        }
+        #continue-btn {
+            display: none; /* Hidden until all cards are flipped */
+            margin-top: 20px;
+        }
+
+        /* --- Section 3: Loading --- */
+        .progress-ring {
+            width: 120px;
+            height: 120px;
+        }
+        .progress-ring__circle {
+            stroke: #ff6b81;
+            stroke-width: 8;
+            fill: transparent;
+            stroke-dasharray: 314; /* 2 * pi * r (r=50) */
+            stroke-dashoffset: 314;
+            transition: stroke-dashoffset 0.5s ease-out;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        .progress-ring__bg {
+            stroke: #ffe0e5;
+            stroke-width: 8;
+            fill: transparent;
+        }
+        #loading-text {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            height: 50px;
+        }
+
+        /* --- Section 4: The Question --- */
+        #section4 h1 {
+            color: white;
+            font-size: 32px;
+            margin-bottom: 40px;
+            z-index: 10;
+        }
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 10;
+        }
+        #yes-btn {
+            background-color: #4CAF50;
+            font-size: 24px;
+            padding: 15px 40px;
+        }
+        #no-btn {
+            background-color: #f44336;
+        }
+        
+        /* Floating hearts for Section 4 */
+        .heart {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 40px;
+            animation: floatUp 5s infinite linear;
+            z-index: 0;
+        }
+        @keyframes floatUp {
+            from { transform: translateY(100vh) scale(0.5); opacity: 1; }
+            to { transform: translateY(-20vh) scale(1.5); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="section1" class="section active">
+        <h2>Welcome.</h2>
+        <p>To proceed, please enter the passcode.</p>
+        <input type="text" id="passcode-input" placeholder="Type here...">
+        <p style="font-size: 14px; font-style: italic; color: #666;">Hint: The name of the love of my life</p>
+        <button onclick="checkPasscode()">Unlock</button>
+        <div id="error-msg"></div>
+    </div>
+
+    <div id="section2" class="section">
+        <h3>Welcome my Caramel!</h3>
+        <p>Before I ask you a question, I need you to know a few things... (Tap to reveal)</p>
+        
+        <div class="card-container" onclick="flipCard(this)">
+            <div class="card">
+                <div class="card-front">❤️</div>
+                <div class="card-back">I would be lost without you. You feel like a lighthouse in the midst of a storm.</div>
+            </div>
+        </div>
+        
+        <div class="card-container" onclick="flipCard(this)">
+            <div class="card">
+                <div class="card-front">🧸</div>
+                <div class="card-back">Your hugs calms me, put things into place and makes the world make sense.</div>
+            </div>
+        </div>
+        
+        <div class="card-container" onclick="flipCard(this)">
+            <div class="card">
+                <div class="card-front">🎁</div>
+                <div class="card-back">Your smile feels like the sun after a rain.</div>
+            </div>
+        </div>
+
+        <button id="continue-btn" onclick="goToSection3()">Continue</button>
+    </div>
+
+    <div id="section3" class="section">
+        <svg class="progress-ring" viewBox="0 0 120 120">
+            <circle class="progress-ring__bg" cx="60" cy="60" r="50"></circle>
+            <circle class="progress-ring__circle" cx="60" cy="60" r="50" id="progress-circle"></circle>
+        </svg>
+        <div id="loading-text">Gathering courage...</div>
+    </div>
+
+    <div id="section4" class="section">
+        <h1>Will you be my girlfriend?</h1>
+        <div class="btn-container">
+            <button id="yes-btn" onclick="sheSaidYes()">YES!</button>
+            <button id="no-btn" onclick="handleNoClick()">No</button>
+        </div>
+    </div>
+
+    <script>
+        // --- Navigation Helper ---
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+        }
+
+        // --- Section 1 Logic ---
+        function checkPasscode() {
+            const input = document.getElementById('passcode-input').value.trim().toLowerCase();
+            const errorMsg = document.getElementById('error-msg');
+            
+            if (input === 'cindy') {
+                errorMsg.innerText = "";
+                showSection('section2');
+            } else if (input === 'ezihe') {
+                errorMsg.innerText = "Why would you write Ezihe's name?";
+            } else if (input === 'ezine') {
+                errorMsg.innerText = "Why would you write Ezine's name?";
+            } else {
+                errorMsg.innerText = "Nice try, but no. Try again! 😉";
+            }
+        }
+
+        // --- Section 2 Logic ---
+        let flippedCount = 0;
+        function flipCard(container) {
+            const card = container.querySelector('.card');
+            if (!card.classList.contains('flipped')) {
+                card.classList.add('flipped');
+                flippedCount++;
+                if (flippedCount === 3) {
+                    document.getElementById('continue-btn').style.display = 'block';
+                }
+            }
+        }
+
+        // --- Section 3 Logic ---
+        function goToSection3() {
+            showSection('section3');
+            const circle = document.getElementById('progress-circle');
+            const textElement = document.getElementById('loading-text');
+            const circumference = 314; // 2 * pi * 50
+            
+            const stages = [
+                { pct: 0, text: "Gathering courage..." },
+                { pct: 20, text: "Putting together the words" },
+                { pct: 40, text: "Practicing what to say..." },
+                { pct: 80, text: "Taking a very deep breath..." },
+                { pct: 100, text: "Okay, here goes nothing." }
+            ];
+
+            // Run through stages with 3-second intervals
+            stages.forEach((stage, index) => {
+                setTimeout(() => {
+                    textElement.innerText = stage.text;
+                    const offset = circumference - (stage.pct / 100) * circumference;
+                    circle.style.strokeDashoffset = offset;
+                    
+                    // If it's the last stage, wait a bit and go to Section 4
+                    if (index === stages.length - 1) {
+                        setTimeout(goToSection4, 3000);
+                    }
+                }, index * 3000);
+            });
+        }
+
+        // --- Section 4 Logic ---
+        function goToSection4() {
+            // Change background to Navy Blue
+            document.body.style.backgroundColor = "#000080";
+            showSection('section4');
+            createFloatingHearts();
+        }
+
+        let noClickCount = 0;
+        const noTexts = [
+            "Are you sure? 🥺",
+            "Think about it!",
+            "Don't do this to me...",
+            "I'll buy you donut and beans"
+        ];
+
+        function handleNoClick() {
+            const noBtn = document.getElementById('no-btn');
+            if (noClickCount < noTexts.length) {
+                noBtn.innerText = noTexts[noClickCount];
+                noClickCount++;
+            } else {
+                // On the 5th click, hide the button
+                noBtn.style.display = 'none';
+            }
+        }
+
+        function sheSaidYes() {
+    const section = document.getElementById('section4');
+    
+    // Inject CSS for the celebration animations dynamically
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 80% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+    `;
+    document.head.appendChild(style);
+
+    // Update the screen content
+    section.innerHTML = `
+        <h1 style="font-size: 36px; animation: popIn 0.6s ease-out; margin-bottom: 10px;">I'm the luckiest guy! ❤️</h1>
+        <p style="color: white; font-size: 18px; animation: popIn 0.8s ease-out;">Get ready for your donut and beans! 🍩🫘</p>
+        <div style="font-size: 70px; margin-top: 30px; animation: bounce 2s infinite;">🥳</div>
+    `;
+
+    // Create the continuous confetti effect
+    setInterval(() => {
+        const confetti = document.createElement('div');
+        const emojis = ['🎉', '💖', '✨', '🍩', '🥺'];
+        confetti.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+        confetti.style.position = 'absolute';
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.top = '-10vh';
+        confetti.style.fontSize = (Math.random() * 20 + 15) + 'px';
+        confetti.style.animation = "fall " + (Math.random() * 3 + 2) + "s linear";
+        confetti.style.zIndex = '100';
+        document.body.appendChild(confetti);
+        
+        // Remove confetti after it falls to prevent the mobile browser from lagging
+        setTimeout(() => confetti.remove(), 5000);
+    }, 150);
+}
+
+
+        function createFloatingHearts() {
+            const section = document.getElementById('section4');
+            for(let i=0; i<10; i++) {
+                let heart = document.createElement('div');
+                heart.innerHTML = '❤️';
+                heart.className = 'heart';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                heart.style.animationDelay = Math.random() * 5 + 's';
+                section.appendChild(heart);
+            }
+        }
+    </script>
+</body>
+</html>
