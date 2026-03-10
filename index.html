@@ -21,7 +21,7 @@
             align-items: center;
             height: 100vh;
             background-color: #f4c2c2; /* Baby pink default */
-            transition: background-color 1s ease;
+            transition: background-color 1s ease, background 1s ease;
         }
 
         .section {
@@ -163,6 +163,7 @@
             margin-bottom: 40px;
             z-index: 10;
             transition: all 0.3s ease;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3); /* Adds a nice pop to the text */
         }
         .btn-container {
             display: flex;
@@ -184,14 +185,14 @@
         /* Floating hearts for Section 4 */
         .heart {
             position: absolute;
-            color: rgba(255, 255, 255, 0.2);
             font-size: 40px;
             animation: floatUp 5s infinite linear;
             z-index: 0;
+            filter: drop-shadow(0 0 5px rgba(255, 105, 180, 0.5)); /* Adds a slight romantic glow */
         }
         @keyframes floatUp {
-            from { transform: translateY(100vh) scale(0.5); opacity: 1; }
-            to { transform: translateY(-20vh) scale(1.5); opacity: 0; }
+            from { transform: translateY(100vh) scale(0.5); opacity: 0.9; }
+            to { transform: translateY(-20vh) scale(1.5); opacity: 0.1; } /* Doesn't fade out as quickly */
         }
     </style>
 </head>
@@ -317,7 +318,8 @@
 
         // --- Section 4 Logic ---
         function goToSection4() {
-            document.body.style.backgroundColor = "#000080";
+            // Updated to a rich royal navy blue gradient
+            document.body.style.background = "linear-gradient(135deg, #000428, #004e92)";
             showSection('section4');
             createFloatingHearts();
         }
